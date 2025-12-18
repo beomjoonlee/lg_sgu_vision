@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="camera_device" params="parent *origin">
+    
+    <joint name="camera_joint" type="fixed">
+      <xacro:insert_block name="origin" />
+      <parent link="${parent}"/>
+      <child link="camera_link"/>
+    </joint>
+
+    <link name="camera_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://ur_description/meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+        <material name="dark_grey">
+          <color rgba="0.2 0.2 0.2 1.0"/>
+        </material>
+      </visual>
+      
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://ur_description/meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="camera_optical_joint" type="fixed">
+      <origin xyz="-0.1 0.03 0" rpy="0 -1.57 0"/>
+      
+      <parent link="camera_link"/>
+      <child link="camera_optical_frame"/>
+    </joint>
+
+    <link name="camera_optical_frame"/>
+
+  </xacro:macro>
+</robot>
