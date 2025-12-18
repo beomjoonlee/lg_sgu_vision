@@ -32,7 +32,7 @@ ROS 2 Humble 기반의 워크스페이스로, 실제 로봇(또는 가상 로봇
 
 ```bash
 # 리포지토리 복제
-git clone [https://github.com/beomjoonlee/lg_sgu_vision.git](https://github.com/beomjoonlee/lg_sgu_vision.git)
+git clone https://github.com/beomjoonlee/lg_sgu_vision.git
 
 # 폴더 이동
 cd lg_sgu_vision
