@@ -14,7 +14,7 @@ Docker 컨테이너 실행
 ./execution.sh
 ```
 
-ROS2 통신을 위한 환경 변수 설정
+컨테이너 안에서 ROS2 통신을 위한 환경 변수 설정
 ```bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export ROS_DOMAIN_ID=<사용할_ID_숫자>
