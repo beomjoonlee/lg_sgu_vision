@@ -63,7 +63,7 @@ omni_python scripts/1_create_viewpoint.py \
     --object sample --material-rgb "170,163,158"
 ```
 
-## 사용 방법
+### 사용 방법
 
 비전 검사 파이프라인 사용 방법은 [scripts/README.md](scripts/README.md)를 참고하세요.
 
