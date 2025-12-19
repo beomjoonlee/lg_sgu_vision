@@ -33,8 +33,7 @@ https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/install_container.
 ./install.sh
 ```
 
-**이 스크립트가 하는 일:**
-- Isaac Sim + cuRobo Docker 이미지 빌드 (isaac_curobo:image)
+**역할:** Isaac Sim + cuRobo Docker 이미지 빌드 (isaac_curobo:image)
 
 **소요 시간:** 첫 빌드 시 30분~1시간 이상 소요될 수 있습니다.
 
@@ -44,7 +43,7 @@ https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/install_container.
 ./execution.sh
 ```
 
-### 공통 환경 변수 설정
+### 컨테이너 내부 공통 환경 변수 설정
 
 ROS 2 통신 미들웨어와 Domain ID를 설정합니다.
 (robot_ws와 동일하게 모든 터미널에서 설정해주셔야 합니다.)
@@ -54,6 +53,7 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export ROS_DOMAIN_ID=<사용할_ID_숫자>
 ```
 
+### 스크립트 실행
 ```bash
 # 프로젝트 디렉토리로 이동
 cd /curobo/gtsp_trajectory
