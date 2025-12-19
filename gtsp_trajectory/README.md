@@ -40,15 +40,19 @@ https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/install_container.
 
 ## Docker 컨테이너 실행
 
-### 기본 실행
-
 ```bash
 ./execution.sh
 ```
 
-### 컨테이너 내부에서 할 수 있는 것
+### 공통 환경 변수 설정
 
-컨테이너가 실행되면 다음과 같은 작업을 수행할 수 있습니다:
+ROS 2 통신 미들웨어와 Domain ID를 설정합니다.
+(robot_ws와 동일하게 모든 터미널에서 설정해주셔야 합니다.)
+
+```bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export ROS_DOMAIN_ID=<사용할_ID_숫자>
+```
 
 ```bash
 # 프로젝트 디렉토리로 이동

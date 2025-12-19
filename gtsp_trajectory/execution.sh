@@ -55,17 +55,26 @@ fi
 ########################################
 
 if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}\$"; then
-  echo "[run_isaac_curobo] 기존 컨테이너 '$CONTAINER_NAME' 발견."
-  echo "  -> Volume mount 적용을 위해 기존 컨테이너를 삭제하고 새로 생성합니다."
-  docker stop "$CONTAINER_NAME" 2>/dev/null || true
-  docker rm "$CONTAINER_NAME"
+  # 컨테이너가 실행 중인지 확인
+  if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}\$"; then
+    echo "[run_isaac_curobo] 컨테이너 '$CONTAINER_NAME'가 이미 실행 중입니다."
+    echo "  -> 기존 컨테이너에 접속합니다."
+    docker exec -it "$CONTAINER_NAME" bash
+    exit 0
+  else
+    echo "[run_isaac_curobo] 컨테이너 '$CONTAINER_NAME'가 멈춰있습니다."
+    echo "  -> 컨테이너를 다시 시작하고 접속합니다."
+    docker start "$CONTAINER_NAME"
+    docker attach "$CONTAINER_NAME"
+    exit 0
+  fi
 fi
 
 ########################################
-# docker run
+# docker run (새 컨테이너 생성)
 ########################################
 
-echo "[run_isaac_curobo] 컨테이너 실행:"
+echo "[run_isaac_curobo] 새 컨테이너 생성:"
 echo "  IMAGE    : $IMAGE_NAME"
 echo "  NAME     : $CONTAINER_NAME"
 echo "  ROS WS   : $ROS_WS_DIR"

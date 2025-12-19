@@ -21,13 +21,13 @@ ROS2 토픽으로 검사 궤적을 moveit으로 전송
 """
 
 import csv
-import os
 import sys
 import time
 from pathlib import Path
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from builtin_interfaces.msg import Duration
 
@@ -47,15 +47,25 @@ class JointTrajectoryPublisher(Node):
         self.get_logger().info(f'Loaded {len(self.trajectory_points)} points (dt={dt}s, total={len(self.trajectory_points)*dt:.2f}s)')
         self.get_logger().info(f'Joint names: {self.joint_names}')
 
-        # Publisher
+        # Publisher with QoS settings to prevent message caching
+        # VOLATILE: Don't store messages for late-joining subscribers
+        # KEEP_LAST with depth=1: Only keep the most recent message
+        qos_profile = QoSProfile(
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.VOLATILE,  # Don't cache messages
+            history=HistoryPolicy.KEEP_LAST,
+            depth=1  # Only keep latest message
+        )
+
         self.pub = self.create_publisher(
             JointTrajectory,
             '/joint_trajectory_from_csv',
-            10
+            qos_profile
         )
 
         # Publish once after a short delay to ensure connections are established
-        self.timer = self.create_timer(5.0, self.publish_trajectory)
+        self.publish_timer = self.create_timer(1.0, self.publish_trajectory)
+        self.shutdown_timer = None
         self.published = False
 
     def load_csv(self, csv_path: str) -> tuple:
@@ -117,11 +127,27 @@ class JointTrajectoryPublisher(Node):
         self.get_logger().info(f'Published trajectory with {len(msg.points)} points')
         self.published = True
 
+        # Cancel publish timer to stop repeating
+        if self.publish_timer:
+            self.publish_timer.cancel()
+
         # Keep node alive for a moment then shutdown
-        self.create_timer(2.0, self.shutdown_node)
+        self.shutdown_timer = self.create_timer(2.0, self.shutdown_node)
 
     def shutdown_node(self):
+        """Properly shutdown the node."""
         self.get_logger().info('Trajectory published. Shutting down...')
+
+        # Cancel all timers
+        if self.publish_timer:
+            self.publish_timer.cancel()
+        if self.shutdown_timer:
+            self.shutdown_timer.cancel()
+
+        # Destroy publisher
+        self.destroy_publisher(self.pub)
+
+        # Trigger shutdown
         raise SystemExit
 
 
