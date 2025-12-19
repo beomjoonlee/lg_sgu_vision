@@ -9,9 +9,9 @@
 4. GTSP로 방문 순서(투어) 최적화
 5. 궤적 보간(interpolation) 및 충돌 검사
 6. 충돌하는 구간은 cuRobo으로 재계획(replan)
-    - 만약 motion planning에 실패하는 경우, 그 다음 waypoint를 시도
-    - 성공 시, 해당 waypoint를 건너뛰고 검사
-    - 실패 시, 가능한 waypoint까지만 궤적 생성
+    - 만약 motion planning에 실패하는 경우, 그 다음 viewpoint를 시도
+    - 성공 시, 해당 viewpoint를 건너뛰고 검사
+    - 실패 시, 가능한 viewpoint까지만 궤적 생성
 7. 최종 충돌 없는 궤적을 CSV로 저장
 
 사용법:
