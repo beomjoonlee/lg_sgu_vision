@@ -378,13 +378,13 @@
     <visual>
       <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/base.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/base.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/base.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/base.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -397,13 +397,13 @@
     <visual>
       <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/shoulder.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/shoulder.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 3.141592653589793" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/shoulder.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/shoulder.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -416,13 +416,13 @@
     <visual>
       <origin rpy="1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0.26"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/upperarm.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/upperarm.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0.26"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/upperarm.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/upperarm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -435,13 +435,13 @@
     <visual>
       <origin rpy="1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0.043"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/forearm.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/forearm.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="1.5707963267948966 0 -1.5707963267948966" xyz="0 0 0.043"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/forearm.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/forearm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -454,13 +454,13 @@
     <visual>
       <origin rpy="1.5707963267948966 0 0" xyz="0 0 -0.0775"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/wrist1.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/wrist1.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="1.5707963267948966 0 0" xyz="0 0 -0.0775"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/wrist1.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/wrist1.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -473,13 +473,13 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 -0.0749"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/wrist2.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/wrist2.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="0 0 0" xyz="0 0 -0.0749"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/wrist2.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/wrist2.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -492,13 +492,13 @@
     <visual>
       <origin rpy="1.5707963267948966 0 0" xyz="0 0 -0.07"/>
       <geometry>
-        <mesh filename="meshes/ur20/visual/wrist3.dae"/>
+        <mesh filename="package://ur_description/meshes/ur20/visual/wrist3.dae"/>
       </geometry>
     </visual>
     <collision>
       <origin rpy="1.5707963267948966 0 0" xyz="0 0 -0.07"/>
       <geometry>
-        <mesh filename="meshes/ur20/collision/wrist3.stl"/>
+        <mesh filename="package://ur_description/meshes/ur20/collision/wrist3.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -605,6 +605,28 @@
     <parent link="flange"/>
     <child link="tool0"/>
   </joint>
+  <joint name="camera_cable_frame_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0 -0.1 -0.03"/>
+    <parent link="tool0"/>
+    <child link="camera_cable_frame"/>
+  </joint>
+  <link name="camera_cable_frame">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.1 0.06"/>
+      </geometry>
+      <material name="dark_grey">
+        <color rgba="0.2 0.2 0.2 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <box size="0.06 0.1 0.06"/>
+      </geometry>
+    </collision>
+  </link>
   <joint name="camera_frame_1_joint" type="fixed">
     <origin rpy="0 0 0" xyz="0 0 0.0055"/>
     <parent link="tool0"/>
@@ -658,7 +680,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
+        <mesh filename="package://ur_description/meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
       </geometry>
       <material name="dark_grey">
         <color rgba="0.2 0.2 0.2 1.0"/>
@@ -667,7 +689,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
+        <mesh filename="package://ur_description/meshes/camera/camera.stl" scale="1.0 1.0 1.0"/>
       </geometry>
     </collision>
   </link>
