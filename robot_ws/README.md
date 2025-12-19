@@ -156,10 +156,12 @@ ros2 launch ur_moveit_config ur_with_camera_moveit.launch.py   ur_type:=ur20   d
 
 아래 경로의 CSV 파일을 읽어 순차적으로 궤적을 실행합니다.
 
+- csv파일 경로:
 ```
 robot_ws/src/trajectory_player/trajectory_player/trajectory.csv
 ```
 
+- 실행:
 ```bash
 ros2 run trajectory_player csv_moveit_player
 ```
