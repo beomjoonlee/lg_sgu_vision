@@ -32,8 +32,13 @@ cd lg_sgu_vision/robot_ws
 
 ### 필수 요구 사항
 
-- ROS 2 Humble  
-- MoveIt 2  
+- **ROS 2 Humble**  
+  https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html
+
+- **MoveIt 2 (Humble)**  
+  https://moveit.picknik.ai/humble/doc/tutorials/getting_started/getting_started.html
+
+---
 
 ### 빌드 순서
 
@@ -54,6 +59,8 @@ source ~/.bashrc
 ---
 
 ## 🚀 Execution
+
+> 아래 실행 방법은 **Docker 환경과 Local 환경 모두에 공통적으로 적용됩니다.**
 
 ### 공통 환경 변수 설정
 
