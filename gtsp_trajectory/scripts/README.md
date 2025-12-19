@@ -1,4 +1,4 @@
-# 비전 검사 파이프라인
+# 비전 검사 파이프라인 실행 방법
 
 로봇 비전 검사를 위한 4단계 파이프라인
 
@@ -11,6 +11,7 @@
 ## 실행 준비
 Docker 컨테이너 실행
 ```bash
+cd gtsp_trajectory
 ./execution.sh
 ```
 
@@ -20,7 +21,7 @@ export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export ROS_DOMAIN_ID=<사용할_ID_숫자>
 ```
 
-해당 디렉토리 이동
+컨테이너 안에서 작업 디렉토리로 이동
 ```bash
 cd /curobo/gtsp_trajectory
 ```

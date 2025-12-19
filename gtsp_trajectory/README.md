@@ -1,4 +1,4 @@
-# GTSP Trajectory
+# GTSP Trajectory 설치 및 실행 방법
 ## 주요 기능
 
 - 검사 대상 표면 자동 추출 및 뷰포인트 생성
@@ -37,17 +37,14 @@ https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/install_container.
 
 **소요 시간:** 첫 빌드 시 30분~1시간 이상 소요될 수 있습니다.
 
-## Docker 컨테이너 실행 (매 실행 시)
+## Docker 컨테이너 실행 (매 실행마다)
 
 ```bash
 ./execution.sh
 ```
 
 ### 컨테이너 내부 공통 환경 변수 설정
-
-ROS 2 통신 미들웨어와 Domain ID를 설정합니다.
-(robot_ws와 동일하게 모든 터미널에서 설정해주셔야 합니다.)
-
+ROS 통신을 위한 설정
 ```bash
 export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 export ROS_DOMAIN_ID=<사용할_ID_숫자>
