@@ -22,6 +22,9 @@ cd /curobo/gtsp_trajectory
 ## 전체 실행 예시
 
 ```bash
+# Domain ID 설정
+export ROS_DOMAIN_ID=<사용할_ID_숫자>
+
 # 1단계: 뷰포인트 생성
 omni_python scripts/1_create_viewpoint.py \
     --object sample --material-rgb "170,163,158"
