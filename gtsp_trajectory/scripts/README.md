@@ -117,7 +117,7 @@ data/{object}/
 | `CAMERA_FOV_WIDTH_MM` | 41.0 | 카메라 시야각 너비 (mm) |
 | `CAMERA_FOV_HEIGHT_MM` | 30.0 | 카메라 시야각 높이 (mm) |
 | `CAMERA_WORKING_DISTANCE_MM` | 110.0 | 작업 거리 (mm) |
-| `CAMERA_OVERLAP_RATIO` | 0.5 | 뷰포인트 간 중첩 비율 |
+| `CAMERA_OVERLAP_RATIO` | 0.5 | 뷰포인트 유효 면적 비율 |
 
 ### 로봇 설정
 | 파라미터 | 설명 |
@@ -134,3 +134,4 @@ data/{object}/
 
 ### 월드 설정
 `TARGET_OBJECT`, `TABLE`, `WALLS`, `ROBOT_MOUNT` 등 환경 및 물체에 대한 정보
+
