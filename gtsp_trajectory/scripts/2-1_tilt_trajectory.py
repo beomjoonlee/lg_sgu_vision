@@ -457,8 +457,8 @@ def save_trajectory_csv(
     """
     headers = [
         "time",
-        "ur20-shoulder_pan_joint", "ur20-shoulder_lift_joint", "ur20-elbow_joint",
-        "ur20-wrist_1_joint", "ur20-wrist_2_joint", "ur20-wrist_3_joint",
+        "shoulder_pan_joint", "shoulder_lift_joint", "elbow_joint",
+        "wrist_1_joint", "wrist_2_joint", "wrist_3_joint",
         "target-POS_X", "target-POS_Y", "target-POS_Z",
     ]
 
@@ -573,26 +573,31 @@ def compute_ik_eaik(
     """
     Compute IK solutions using EAIK (analytical IK solver)
 
+    Input poses are expected to be in camera_optical_frame.
+    This function transforms them to tool0/wrist3 frame before solving IK.
+
     Args:
-        world_matrices: (N, 4, 4) array of world pose matrices
+        world_matrices: (N, 4, 4) array of world pose matrices (camera_optical_frame)
         urdf_path: Path to robot URDF file (default from config)
 
     Returns:
         List of EAIK solution objects
     """
-    if not EAIK_AVAILABLE:
-        raise RuntimeError("EAIK not available")
-
     if urdf_path is None:
         urdf_path = config.DEFAULT_URDF_PATH
 
     if isinstance(world_matrices, torch.Tensor):
-        mats_np = world_matrices.detach().cpu().numpy()
+        mats_np = world_matrices.detach().cpu().numpy().copy()
     else:
-        mats_np = np.asarray(world_matrices)
+        mats_np = np.asarray(world_matrices, dtype=np.float64).copy()
 
     if mats_np.ndim != 3 or mats_np.shape[1:] != (4, 4):
         raise ValueError("Expected poses shaped (batch, 4, 4)")
+
+    # Transform from camera_optical_frame to tool0/wrist3
+    # Move back along Z-axis by TOOL_TO_CAMERA_OPTICAL_OFFSET_M
+    z_axis = mats_np[:, :3, 2]  # Z-axis direction for each pose
+    mats_np[:, :3, 3] -= z_axis * config.TOOL_TO_CAMERA_OPTICAL_OFFSET_M
 
     # Load URDF robot
     bot = UrdfRobot(urdf_path)

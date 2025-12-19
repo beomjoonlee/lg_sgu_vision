@@ -79,6 +79,7 @@ moveit 쪽에서 받은 궤적을 따라 로봇을 움직입니다.
 ```bash
 --object          # 객체 이름 (필수)
 --num_viewpoints  # 뷰포인트 개수 (필수)
+--tilt              # tilt 궤적 사용 (옵션)
 ```
 
 ## 디렉토리 구조

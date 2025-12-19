@@ -988,7 +988,7 @@ def main():
     print_key_value("Input file", trajectory_path)
 
     # Use inlined utility to load trajectory
-    trajectory, joint_names = load_trajectory_csv(trajectory_path, joint_prefix="ur20-")
+    trajectory, joint_names = load_trajectory_csv(trajectory_path, joint_prefix="")
 
     # Convert to list of arrays
     joint_targets = [np.array(cfg, dtype=np.float64) for cfg in trajectory]

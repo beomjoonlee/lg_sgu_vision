@@ -314,12 +314,12 @@ def save_trajectory_csv(
 
     headers = [
         "time",
-        "ur20-shoulder_pan_joint",
-        "ur20-shoulder_lift_joint",
-        "ur20-elbow_joint",
-        "ur20-wrist_1_joint",
-        "ur20-wrist_2_joint",
-        "ur20-wrist_3_joint",
+        "shoulder_pan_joint",
+        "shoulder_lift_joint",
+        "elbow_joint",
+        "wrist_1_joint",
+        "wrist_2_joint",
+        "wrist_3_joint",
         "target-POS_X", "target-POS_Y", "target-POS_Z",
         "target-ROT_X", "target-ROT_Y", "target-ROT_Z", "target-ROT_W",
     ]

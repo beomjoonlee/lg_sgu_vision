@@ -8,13 +8,21 @@ ROS2 토픽으로 검사 궤적을 moveit으로 전송
         --object sample \
         --num_viewpoints 163
 
+    # Tilt 궤적
+    omni_python scripts/4_publish_trajectory.py \
+        --object sample \
+        --num_viewpoints 163 \
+        --tilt
+
 경로는 자동으로 생성됩니다:
 - 입력: data/{object}/trajectory/{num_viewpoints}/trajectory.csv
+- Tilt: data/{object}/trajectory/{num_viewpoints}/tilt_trajectory.csv
 """
 
 import csv
 import os
 import sys
+import time
 from pathlib import Path
 
 import rclpy
@@ -33,29 +41,10 @@ class JointTrajectoryPublisher(Node):
 
         self.dt = dt  # Time step between points (seconds)
 
-        # UR20 joint names
-        self.joint_names = [
-            'shoulder_pan_joint',
-            'shoulder_lift_joint',
-            'elbow_joint',
-            'wrist_1_joint',
-            'wrist_2_joint',
-            'wrist_3_joint'
-        ]
-
-        # CSV column names mapping
-        self.csv_joint_columns = [
-            'ur20-shoulder_pan_joint',
-            'ur20-shoulder_lift_joint',
-            'ur20-elbow_joint',
-            'ur20-wrist_1_joint',
-            'ur20-wrist_2_joint',
-            'ur20-wrist_3_joint'
-        ]
-
-        # Load trajectory from CSV
-        self.trajectory_points = self.load_csv(csv_path)
+        # Load trajectory from CSV and auto-detect joint names from header
+        self.trajectory_points, self.joint_names = self.load_csv(csv_path)
         self.get_logger().info(f'Loaded {len(self.trajectory_points)} points (dt={dt}s, total={len(self.trajectory_points)*dt:.2f}s)')
+        self.get_logger().info(f'Joint names: {self.joint_names}')
 
         # Publisher
         self.pub = self.create_publisher(
@@ -68,15 +57,32 @@ class JointTrajectoryPublisher(Node):
         self.timer = self.create_timer(5.0, self.publish_trajectory)
         self.published = False
 
-    def load_csv(self, csv_path: str) -> list:
-        """Load trajectory points from CSV file."""
+    def load_csv(self, csv_path: str) -> tuple:
+        """Load trajectory points from CSV file and auto-detect joint names.
+
+        Returns:
+            tuple: (points, joint_names) where points is list of joint positions
+                   and joint_names is list of joint column names from CSV header
+        """
         points = []
+        joint_names = None
+
         with open(csv_path, 'r') as f:
             reader = csv.DictReader(f)
+
+            # Auto-detect joint columns from header (columns containing 'joint')
+            if reader.fieldnames:
+                joint_names = [col for col in reader.fieldnames if 'joint' in col.lower()]
+
+            if not joint_names:
+                raise ValueError(f"No joint columns found in CSV header: {reader.fieldnames}")
+
+            # Read trajectory data
             for row in reader:
-                positions = [float(row[col]) for col in self.csv_joint_columns]
+                positions = [float(row[col]) for col in joint_names]
                 points.append(positions)
-        return points
+
+        return points, joint_names
 
     def publish_trajectory(self):
         """Publish the full trajectory."""
@@ -86,7 +92,7 @@ class JointTrajectoryPublisher(Node):
         # 🚀 subscriber 연결될 때까지 대기
         while self.pub.get_subscription_count() == 0:
             self.get_logger().info("아직 Subscriber 연결 안 됨. 기다리는 중...")
-            rclpy.sleep(0.5)
+            time.sleep(1.0)
 
         msg = JointTrajectory()
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -96,7 +102,7 @@ class JointTrajectoryPublisher(Node):
         for i, positions in enumerate(self.trajectory_points):
             point = JointTrajectoryPoint()
             point.positions = positions
-            point.velocities = [0.0] * 6
+            point.velocities = [0.0] * len(self.joint_names)
 
             # time_from_start = index * dt
             t = i * self.dt
@@ -139,10 +145,33 @@ def main(args=None):
         default=0.01,
         help='Time step between trajectory points in seconds (default: 0.01)'
     )
+    parser.add_argument(
+        '--tilt',
+        action='store_true',
+        help='Use tilt trajectory (tilt_trajectory.csv) instead of regular trajectory',
+        default=False
+    )
+    parser.add_argument(
+        '--trajectory-file',
+        type=str,
+        default=None,
+        help='Custom trajectory filename (overrides --tilt if specified)'
+    )
     parsed_args, remaining = parser.parse_known_args()
 
+    # Determine trajectory filename
+    if parsed_args.trajectory_file is not None:
+        # Custom filename specified
+        trajectory_filename = parsed_args.trajectory_file
+    elif parsed_args.tilt:
+        # Tilt mode enabled
+        trajectory_filename = "tilt_trajectory.csv"
+    else:
+        # Default trajectory
+        trajectory_filename = "trajectory.csv"
+
     # Auto-generate trajectory path
-    csv_path = str(config.get_trajectory_path(parsed_args.object, parsed_args.num_viewpoints, "trajectory.csv"))
+    csv_path = str(config.get_trajectory_path(parsed_args.object, parsed_args.num_viewpoints, trajectory_filename))
 
     print(f"Object: {parsed_args.object}")
     print(f"Num viewpoints: {parsed_args.num_viewpoints}")
