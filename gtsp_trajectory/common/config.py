@@ -22,6 +22,16 @@ CAMERA_WORKING_DISTANCE_MM = 110.0
 # 카메라 뷰 유효 면적 (0.5 = 50% 중첩)
 CAMERA_OVERLAP_RATIO = 0.5
 
+# 로봇 제약 여부
+ROBOT_HAS_CONSTRAINT = True
+
+# 로봇 시작 자세
+ROBOT_START_STATE = np.deg2rad([-90, -120, -60, -90, 90, 0])
+# ROBOT_START_STATE = np.deg2rad([284, -106, -119, -22, 84, -167])
+
+# 조인트 최대 움직임
+MAX_JOINT_FROM_START_STATE = np.deg2rad(90)
+
 
 # ============================================================================
 # 월드 설정 (Isaac Sim 좌표계, 미터 단위)
@@ -30,7 +40,7 @@ CAMERA_OVERLAP_RATIO = 0.5
 # 대상 객체 설정
 TARGET_OBJECT = {
     "name": "target_object",
-    "position": np.array([0.00, 1.09 + 0.13, 0.88 - 0.8], dtype=np.float64),
+    "position": np.array([0.00, 1.1, 0.095], dtype=np.float64),
     "rotation": np.array([0.7071, 0.0, 0.0, 0.7071], dtype=np.float64),  # 쿼터니언: w, x, y, z
 }
 

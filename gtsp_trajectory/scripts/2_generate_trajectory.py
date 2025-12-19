@@ -499,12 +499,7 @@ def assign_ik_solutions_to_viewpoints(
     indices: Optional[List[int]] = None
 ):
     """
-    Assign EAIK IK solutions to viewpoints
-
-    Args:
-        viewpoints: List of Viewpoint objects
-        eaik_results: Results from EAIK solver
-        indices: Indices of viewpoints that have results
+    Assign EAIK IK solutions to viewpoints with constraint filtering
     """
     # Clear existing solutions
     for viewpoint in viewpoints:
@@ -535,8 +530,25 @@ def assign_ik_solutions_to_viewpoints(
         if q_candidates is None or len(q_candidates) == 0:
             continue
 
-        solutions = [np.asarray(q, dtype=np.float64) for q in q_candidates]
-        viewpoints[viewpoint_idx].all_ik_solutions = solutions
+        valid_solutions = []
+        
+        # IK 해 후보들에 대해 필터링 수행
+        for q in q_candidates:
+            q_np = np.asarray(q, dtype=np.float64)
+            
+            # [NEW] 로봇 제약 조건 확인
+            if config.ROBOT_HAS_CONSTRAINT:
+                # 검사 대상: Index 0 ~ 4 (마지막 조인트 제외)
+                # 시작 자세와의 차이(절댓값) 계산
+                diff = np.abs(q_np[:5] - config.ROBOT_START_STATE[:5])
+                
+                # 하나라도 허용 범위를 초과하면 제외 (continue)
+                if np.any(diff > config.MAX_JOINT_FROM_START_STATE):
+                    continue
+            
+            valid_solutions.append(q_np)
+
+        viewpoints[viewpoint_idx].all_ik_solutions = valid_solutions
 
 
 def check_ik_solutions_collision(
