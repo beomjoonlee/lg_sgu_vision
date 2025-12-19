@@ -9,6 +9,9 @@
 4. GTSP로 방문 순서(투어) 최적화
 5. 궤적 보간(interpolation) 및 충돌 검사
 6. 충돌하는 구간은 cuRobo으로 재계획(replan)
+    - 만약 motion planning에 실패하는 경우, 그 다음 waypoint를 시도
+    - 성공 시, 해당 waypoint를 건너뛰고 검사
+    - 실패 시, 가능한 waypoint까지만 궤적 생성
 7. 최종 충돌 없는 궤적을 CSV로 저장
 
 사용법:
@@ -1056,6 +1059,140 @@ def generate_interpolated_path(
     return path
 
 
+def check_trajectory_with_skip_on_failure(
+    trajectory: np.ndarray,
+    order: List[int],
+    picked: Dict[int, int],
+    clusters: List[Dict],
+    motion_gen: MotionGen,
+    max_joint_step_deg: float = None
+) -> Tuple[np.ndarray, List[int], Dict[int, int], Dict]:
+    """
+    Check trajectory collision with automatic waypoint skip on first failure
+
+    If replanning fails for segment i→i+1:
+    1. Try to skip waypoint i+1 and connect i→i+2 directly
+    2. If successful: continue with remaining waypoints (excluding i+1)
+    3. If failed: truncate trajectory up to waypoint i+1
+
+    Args:
+        trajectory: Initial trajectory waypoints (N, 6)
+        order: Visit order (cluster indices)
+        picked: IK selection {cluster_idx: ik_idx}
+        clusters: Cluster data
+        motion_gen: MotionGen for collision checking
+        max_joint_step_deg: Maximum joint step for interpolation
+
+    Returns:
+        final_trajectory: Final trajectory (possibly with skipped waypoint)
+        final_order: Updated order (possibly with skipped waypoint removed)
+        final_picked: Updated picked dict
+        stats: Statistics including 'skipped_waypoint_idx' if any
+    """
+    # First attempt: check original trajectory
+    final_traj, stats = check_trajectory_collision(
+        trajectory, motion_gen, max_joint_step_deg
+    )
+
+    # If no failures, return as is
+    if not stats['failed_segments']:
+        stats['skipped_waypoint_idx'] = None
+        stats['skip_attempted'] = False
+        return final_traj, order, picked, stats
+
+    # Get first failed segment
+    first_failed_seg = stats['failed_segments'][0]
+
+    print(f"    First failure at segment {first_failed_seg}→{first_failed_seg+1}")
+
+    # Check if we can skip (need at least one more waypoint after failure)
+    if first_failed_seg + 2 >= len(trajectory):
+        # Cannot skip - this is the last or second-to-last waypoint
+        print(f"    Cannot skip: no waypoint after {first_failed_seg+1}")
+        stats['skipped_waypoint_idx'] = None
+        stats['skip_attempted'] = False
+        stats['skip_successful'] = False
+        stats['truncated_at'] = first_failed_seg + 1
+        return final_traj, order, picked, stats
+
+    # Try motion planning from waypoint[first_failed_seg] to waypoint[first_failed_seg+2]
+    # to see if we can skip waypoint[first_failed_seg+1]
+    print(f"    Attempting to skip waypoint {first_failed_seg+1}, connecting {first_failed_seg}→{first_failed_seg+2}...")
+
+    start_config = trajectory[first_failed_seg]
+    goal_config = trajectory[first_failed_seg + 2]
+
+    # Try direct motion planning
+    result = motion_gen.plan_single_js(
+        start_state=JointState.from_position(
+            torch.tensor(start_config, dtype=torch.float32, device=motion_gen.tensor_args.device).unsqueeze(0)
+        ),
+        goal_state=JointState.from_position(
+            torch.tensor(goal_config, dtype=torch.float32, device=motion_gen.tensor_args.device).unsqueeze(0)
+        ),
+        plan_config=MotionGenPlanConfig(
+            enable_opt=True,
+            timeout=config.REPLAN_TIMEOUT,
+            max_attempts=config.REPLAN_MAX_ATTEMPTS,
+        )
+    )
+
+    if not result.success.item():
+        # Skip failed - truncate trajectory at first_failed_seg+1
+        print(f"    Skip failed - truncating trajectory at waypoint {first_failed_seg+1}")
+
+        # Build truncated trajectory up to and including waypoint at first_failed_seg+1
+        truncated_traj = []
+        for i in range(first_failed_seg + 2):  # Include waypoints 0 to first_failed_seg+1
+            truncated_traj.append(trajectory[i])
+        truncated_traj = np.array(truncated_traj, dtype=np.float64)
+
+        # Truncate order and picked
+        truncated_order = order[:first_failed_seg + 2]
+        truncated_picked = {cluster_idx: picked[cluster_idx] for cluster_idx in truncated_order}
+
+        # Process truncated trajectory to get interpolated configs
+        truncated_final, truncated_stats = check_trajectory_collision(
+            truncated_traj, motion_gen, max_joint_step_deg
+        )
+
+        truncated_stats['skipped_waypoint_idx'] = None
+        truncated_stats['skip_attempted'] = True
+        truncated_stats['skip_successful'] = False
+        truncated_stats['truncated_at'] = first_failed_seg + 1
+
+        return truncated_final, truncated_order, truncated_picked, truncated_stats
+
+    # Skip successful - rebuild trajectory excluding waypoint[first_failed_seg+1]
+    print(f"    Skip successful - removing waypoint {first_failed_seg+1} from trajectory")
+
+    # Build new trajectory without the skipped waypoint
+    new_trajectory = []
+    new_order = []
+    for i, q in enumerate(trajectory):
+        if i == first_failed_seg + 1:
+            continue  # Skip this waypoint
+        new_trajectory.append(q)
+        new_order.append(order[i])
+
+    new_trajectory = np.array(new_trajectory, dtype=np.float64)
+    new_picked = {cluster_idx: picked[cluster_idx] for cluster_idx in new_order}
+
+    # Re-check the new trajectory for collisions
+    print(f"    Re-checking trajectory with skipped waypoint...")
+    final_traj, new_stats = check_trajectory_collision(
+        new_trajectory, motion_gen, max_joint_step_deg
+    )
+
+    # Update stats
+    new_stats['skipped_waypoint_idx'] = first_failed_seg + 1
+    new_stats['skip_attempted'] = True
+    new_stats['skip_successful'] = True
+    new_stats['original_failed_segments'] = stats['failed_segments']
+
+    return final_traj, new_order, new_picked, new_stats
+
+
 def check_trajectory_collision(
     trajectory: np.ndarray,
     motion_gen: MotionGen,
@@ -1510,13 +1647,22 @@ def main():
     )
     motion_gen = MotionGen(motion_gen_config)
 
-    final_trajectory, stats = check_trajectory_collision(
-        initial_trajectory, motion_gen
+    final_trajectory, final_order, final_picked, stats = check_trajectory_with_skip_on_failure(
+        initial_trajectory, order, picked, clusters, motion_gen
     )
 
     print(f"  Waypoints: {stats['num_waypoints']}")
     print(f"  Interpolated: {stats['num_interpolated']}")
     print(f"  Collisions found: {stats['num_collisions']}")
+
+    # Show skip information if attempted
+    if stats.get('skip_attempted', False):
+        if stats.get('skip_successful', False):
+            print(f"  ⚠ Skipped waypoint: {stats['skipped_waypoint_idx']} (successfully bypassed)")
+            print(f"  ✓ Remaining waypoints: {len(final_order)}/{len(order)}")
+        else:
+            print(f"  ⚠ Skip attempt failed - trajectory truncated at waypoint {stats.get('truncated_at', 'unknown')}")
+            print(f"  ✓ Saved waypoints: {len(final_order)}/{len(order)}")
 
     # Show replanning success rate
     if stats['replan_attempts'] > 0:
@@ -1525,27 +1671,18 @@ def main():
 
         # Show failed segments if any
         if stats['failed_segments']:
-            print(f"  ⚠ Failed segments: {stats['failed_segments']}")
+            print(f"  ⚠ Failed segments remaining: {stats['failed_segments']}")
             print(f"    (Waypoint pairs: {[(s, s+1) for s in stats['failed_segments']]})")
     else:
         print(f"  Replanning: No segments required replanning")
     print()
 
-    # Step 7: Save trajectory (only if no failed segments)
+    # Step 7: Save trajectory (always save, even if truncated/skipped)
     print("[7/7] Saving trajectory...")
-    if stats['failed_segments']:
-        print(f"  ✗ Cannot save trajectory: {len(stats['failed_segments'])} segments have unresolved collisions")
-        print(f"  ✗ Failed segment indices: {stats['failed_segments']}")
-        print()
-        elapsed = time.time() - start_time
-        print("=" * 60)
-        print("✗ Step 2 Failed - Trajectory not saved due to collisions")
-        print(f"Total time: {elapsed:.1f}s")
-        print("=" * 60)
-        return 1
 
+    # Use final_order and final_picked (possibly modified by skip logic)
     saved_path = save_trajectory_csv(
-        final_trajectory, output_path, clusters, order, picked
+        final_trajectory, output_path, clusters, final_order, final_picked
     )
     print(f"  ✓ Saved to {saved_path}")
     print()
@@ -1553,7 +1690,7 @@ def main():
     # Optional visualization
     if args.visualize:
         visualize_trajectory(
-            final_trajectory, clusters, order, picked, target_mesh_path
+            final_trajectory, clusters, final_order, final_picked, target_mesh_path
         )
 
     elapsed = time.time() - start_time
