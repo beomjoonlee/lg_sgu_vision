@@ -37,7 +37,7 @@ https://docs.isaacsim.omniverse.nvidia.com/5.0.0/installation/install_container.
 
 **소요 시간:** 첫 빌드 시 30분~1시간 이상 소요될 수 있습니다.
 
-## Docker 컨테이너 실행
+## Docker 컨테이너 실행 (매 실행 시)
 
 ```bash
 ./execution.sh
@@ -65,7 +65,7 @@ omni_python scripts/1_create_viewpoint.py \
 
 ### 사용 방법
 
-비전 검사 파이프라인 사용 방법은 [scripts/README.md](scripts/README.md)를 참고하세요.
+구체적인 비전 검사 파이프라인 사용 방법은 [scripts/README.md](scripts/README.md)를 참고해주세요.
 
 
 ## 참고: Docker 이미지/컨테이너 재빌드(클린 빌드)
