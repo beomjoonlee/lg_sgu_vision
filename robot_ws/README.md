@@ -173,3 +173,16 @@ ros2 run trajectory_player csv_moveit_player
 ```bash
 ros2 run trajectory_player topic_moveit_player
 ```
+
+## 📌 UR 공식 레포지토리 대비 추가/확장 내용 안내
+
+본 워크스페이스에는  
+- Universal_Robots_ROS2_Description: https://github.com/UniversalRobots/Universal_Robots_ROS2_Description  
+- Universal_Robots_ROS2_Driver: https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver  
+에 **UR20에 카메라를 통합한 구성**을 추가하였습니다.
+
+기존 UR 공식 레포지토리 대비 **추가된 파일 목록과 각 파일의 역할에 대한 상세 설명은**  
+아래 경로의 README 문서에 정리되어 있습니다.
+
+https://github.com/beomjoonlee/lg_sgu_vision/tree/main/robot_ws/src/ur
+
