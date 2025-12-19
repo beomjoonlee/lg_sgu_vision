@@ -97,4 +97,8 @@ docker run --name "$CONTAINER_NAME" --entrypoint bash -it\
   -v ~/docker/isaac-sim/documents:/root/Documents:rw \
   -v "$ROS_WS_DIR":/workspace/IsaacSim-ros_workspaces:rw \
   -v "$PROJECT_DIR":/curobo/gtsp_trajectory:rw \
+  -v "$PROJECT_DIR"/ur20_description/ur20_with_camera.yml:/curobo/src/curobo/content/configs/robot/ur20_with_camera.yml:ro \
+  -v "$PROJECT_DIR"/ur20_description/ur20_with_camera.urdf:/curobo/src/curobo/content/assets/robot/ur_description/ur20_with_camera.urdf:ro \
+  -v "$PROJECT_DIR"/ur20_description/ur20:/curobo/src/curobo/content/assets/robot/ur_description/meshes/ur20:ro \
+  -v "$PROJECT_DIR"/ur20_description/camera:/curobo/src/curobo/content/assets/robot/ur_description/meshes/camera:ro \
   $IMAGE_NAME

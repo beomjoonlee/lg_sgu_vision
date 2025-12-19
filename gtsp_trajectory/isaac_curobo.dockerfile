@@ -46,11 +46,7 @@ WORKDIR /curobo
 RUN /isaac-sim/python.sh -m pip install -e ".[isaacsim]" --no-build-isolation
 RUN /isaac-sim/python.sh -m pip install open3d EAIK h5py
 
-# 로컬 파일 복사 (robot description)
-COPY ur20_description/ur20_with_camera.yml /curobo/src/curobo/content/configs/robot/
-COPY ur20_description/ur20_with_camera.urdf /curobo/src/curobo/content/assets/robot/ur_description/
-COPY ur20_description/ur20 /curobo/src/curobo/content/assets/robot/ur_description/meshes/ur20
-COPY ur20_description/camera /curobo/src/curobo/content/assets/robot/ur_description/meshes/camera
+# 로봇 description 파일들은 volume mount로 연결됨 (execution.sh 참조)
 
 # 프로젝트 작업 디렉토리 생성 (실제 파일은 volume mount로 연결됨)
 WORKDIR /curobo/gtsp_trajectory
