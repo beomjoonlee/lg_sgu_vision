@@ -46,22 +46,22 @@ WALLS = [
     {
         "name": "wall_front",
         "position": np.array([0.0, 1.6, 0.5], dtype=np.float64),
-        "dimensions": np.array([2.2, 0.1, 1.0], dtype=np.float64),
+        "dimensions": np.array([2.2, 0.1, 3.0], dtype=np.float64),
     },
     {
         "name": "wall_back",
         "position": np.array([0.0, -1.0, 0.5], dtype=np.float64),
-        "dimensions": np.array([2.2, 0.1, 1.0], dtype=np.float64),
+        "dimensions": np.array([2.2, 0.1, 3.0], dtype=np.float64),
     },
     {
         "name": "wall_left",
-        "position": np.array([-1.0, 0.0, 0.5], dtype=np.float64),
-        "dimensions": np.array([0.1, 2.2, 1.0], dtype=np.float64),
+        "position": np.array([-1.0, 0.25, 0.5], dtype=np.float64),
+        "dimensions": np.array([0.1, 2.7, 3.0], dtype=np.float64),
     },
     {
         "name": "wall_right",
-        "position": np.array([1.0, 0.0, 0.5], dtype=np.float64),
-        "dimensions": np.array([0.1, 2.2, 1.0], dtype=np.float64),
+        "position": np.array([1.0, 0.25, 0.5], dtype=np.float64),
+        "dimensions": np.array([0.1, 2.7, 3.0], dtype=np.float64),
     },
     {
         "name": "support",
