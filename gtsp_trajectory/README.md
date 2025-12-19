@@ -70,7 +70,6 @@ omni_python scripts/1_create_viewpoint.py \
 ### 언제 재빌드가 필요한가?
 - Dockerfile 변경 (패키지 추가/환경변수/시스템 라이브러리 등)
 - cuRobo / Isaac Sim 버전 변경 또는 의존성 설치 방식 변경
-- `ur20_description/` 등 로봇 모델(URDF/mesh) 변경
 - 컨테이너 내부에 설치한 내용이 꼬였거나(의존성 충돌) 깔끔한 초기화가 필요한 경우
 
 ### 클린 재빌드 절차
