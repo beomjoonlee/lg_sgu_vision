@@ -14,7 +14,13 @@ Docker 컨테이너 실행
 ./execution.sh
 ```
 
-컨테이너 내부에서 프로젝트 디렉토리로 이동:
+ROS2 통신을 위한 환경 변수 설정
+```bash
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export ROS_DOMAIN_ID=<사용할_ID_숫자>
+```
+
+해당 디렉토리 이동
 ```bash
 cd /curobo/gtsp_trajectory
 ```
@@ -22,9 +28,6 @@ cd /curobo/gtsp_trajectory
 ## 전체 실행 예시
 
 ```bash
-# Domain ID 설정
-export ROS_DOMAIN_ID=<사용할_ID_숫자>
-
 # 1단계: 뷰포인트 생성
 omni_python scripts/1_create_viewpoint.py \
     --object sample --material-rgb "170,163,158"

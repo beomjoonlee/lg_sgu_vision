@@ -59,7 +59,8 @@ export ROS_DOMAIN_ID=<사용할_ID_숫자>
 cd /curobo/gtsp_trajectory
 
 # 비전 검사 스크립트 실행
-omni_python scripts/1_create_viewpoint.py
+omni_python scripts/1_create_viewpoint.py \
+    --object sample --material-rgb "170,163,158"
 ```
 
 ## 사용 방법
