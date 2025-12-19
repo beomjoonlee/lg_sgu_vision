@@ -61,6 +61,14 @@ omni_python scripts/4_publish_trajectory.py \
 --num_viewpoints  # 뷰포인트 개수 (필수)
 ```
 
+### 2-1_tilt_trajectory.py
+물체 검사 궤적에서 상하좌우로 움직이며 tilt 검사를 실시
+
+```bash
+--object          # 객체 이름 (필수)
+--num_viewpoints  # 뷰포인트 개수 (필수)
+```
+
 ### 3_simulation.py
 Isaac Sim에서 궤적 실행
 

@@ -4,6 +4,7 @@ ROS2 토픽으로 검사 궤적을 moveit으로 전송
 로봇 컨트롤은 moveit을 사용하여 이루어짐
 
 사용법:
+    # 전체 검사 궤적
     omni_python scripts/4_publish_trajectory.py \
         --object sample \
         --num_viewpoints 163
@@ -15,7 +16,7 @@ ROS2 토픽으로 검사 궤적을 moveit으로 전송
         --tilt
 
 경로는 자동으로 생성됩니다:
-- 입력: data/{object}/trajectory/{num_viewpoints}/trajectory.csv
+- 전체 검사: data/{object}/trajectory/{num_viewpoints}/trajectory.csv
 - Tilt: data/{object}/trajectory/{num_viewpoints}/tilt_trajectory.csv
 """
 
